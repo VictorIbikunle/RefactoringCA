@@ -6,11 +6,7 @@
  * 
  * */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -23,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -85,6 +82,8 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	String[] department = { "", "Administration", "Production", "Transport", "Management" };
 	// full time combo box values
 	String[] fullTime = { "", "Yes", "No" };
+
+	
 
 	// initialize menu bar
 	private JMenuBar menuBar() {
@@ -222,41 +221,31 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	// initialize main/details panel
 	private JPanel detailsPanel() {
+		JPanel empDetails = createEmployeeDetailsPanel();
+		addListenersAndFormatComponents(empDetails);
+		return empDetails;
+	}
+
+	private JPanel createEmployeeDetailsPanel() {
 		JPanel empDetails = new JPanel(new MigLayout());
 		JPanel buttonPanel = new JPanel();
-		JTextField field;
 
 		empDetails.setBorder(BorderFactory.createTitledBorder("Employee Details"));
 
-		empDetails.add(new JLabel("ID:"), "growx, pushx");
-		empDetails.add(idField = new JTextField(20), "growx, pushx, wrap");
-		idField.setEditable(false);
-
-		empDetails.add(new JLabel("PPS Number:"), "growx, pushx");
-		empDetails.add(ppsField = new JTextField(20), "growx, pushx, wrap");
-
-		empDetails.add(new JLabel("Surname:"), "growx, pushx");
-		empDetails.add(surnameField = new JTextField(20), "growx, pushx, wrap");
-
-		empDetails.add(new JLabel("First Name:"), "growx, pushx");
-		empDetails.add(firstNameField = new JTextField(20), "growx, pushx, wrap");
-
-		empDetails.add(new JLabel("Gender:"), "growx, pushx");
-		empDetails.add(genderCombo = new JComboBox<String>(gender), "growx, pushx, wrap");
-
-		empDetails.add(new JLabel("Department:"), "growx, pushx");
-		empDetails.add(departmentCombo = new JComboBox<String>(department), "growx, pushx, wrap");
-
-		empDetails.add(new JLabel("Salary:"), "growx, pushx");
-		empDetails.add(salaryField = new JTextField(20), "growx, pushx, wrap");
-
-		empDetails.add(new JLabel("Full Time:"), "growx, pushx");
-		empDetails.add(fullTimeCombo = new JComboBox<String>(fullTime), "growx, pushx, wrap");
+		addField(empDetails, "ID:", idField = new JTextField(20), true);
+		addField(empDetails, "PPS Number:", ppsField = new JTextField(20), false);
+		addField(empDetails, "Surname:", surnameField = new JTextField(20), false);
+		addField(empDetails, "First Name:", firstNameField = new JTextField(20), false);
+		addField(empDetails, "Gender:", genderCombo = new JComboBox<>(gender), false);
+		addField(empDetails, "Department:", departmentCombo = new JComboBox<>(department), false);
+		addField(empDetails, "Salary:", salaryField = new JTextField(20), false);
+		addField(empDetails, "Full Time:", fullTimeCombo = new JComboBox<>(fullTime), false);
 
 		buttonPanel.add(saveChange = new JButton("Save"));
 		saveChange.addActionListener(this);
 		saveChange.setVisible(false);
 		saveChange.setToolTipText("Save changes");
+
 		buttonPanel.add(cancelChange = new JButton("Cancel"));
 		cancelChange.addActionListener(this);
 		cancelChange.setVisible(false);
@@ -264,33 +253,40 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 		empDetails.add(buttonPanel, "span 2,growx, pushx,wrap");
 
-		// loop through panel components and add listeners and format
-		for (int i = 0; i < empDetails.getComponentCount(); i++) {
-			empDetails.getComponent(i).setFont(font1);
-			if (empDetails.getComponent(i) instanceof JTextField) {
-				field = (JTextField) empDetails.getComponent(i);
-				field.setEditable(false);
-				if (field == ppsField)
-					field.setDocument(new JTextFieldLimit(9));
-				else
-					field.setDocument(new JTextFieldLimit(20));
-				field.getDocument().addDocumentListener(this);
-			} // end if
-			else if (empDetails.getComponent(i) instanceof JComboBox) {
-				empDetails.getComponent(i).setBackground(Color.WHITE);
-				empDetails.getComponent(i).setEnabled(false);
-				((JComboBox<String>) empDetails.getComponent(i)).addItemListener(this);
-				((JComboBox<String>) empDetails.getComponent(i)).setRenderer(new DefaultListCellRenderer() {
-					// set foregroung to combo boxes
+		return empDetails;
+	}
+
+	private void addField(JPanel empDetails, String label, JComboBox<String> stringJComboBox, boolean isIdField) {
+	}
+
+	private void addField(JPanel panel, String label, JTextField field, boolean isIdField) {
+		panel.add(new JLabel(label), "growx, pushx");
+		panel.add(field, "growx, pushx, wrap");
+		field.setEditable(!isIdField);
+		field.setDocument(new JTextFieldLimit(isIdField ? 20 : 9));
+		field.getDocument().addDocumentListener(this);
+	}
+
+	private void addListenersAndFormatComponents(JPanel empDetails) {
+		for (Component component : empDetails.getComponents()) {
+			if (component instanceof JTextField) {
+				JTextField field = (JTextField) component;
+				field.setFont(font1);
+			} else if (component instanceof JComboBox) {
+				JComboBox<String> comboBox = (JComboBox<String>) component;
+				comboBox.setBackground(Color.WHITE);
+				comboBox.setEnabled(false);
+				comboBox.addItemListener(this);
+				comboBox.setRenderer(new DefaultListCellRenderer() {
 					public void paint(Graphics g) {
 						setForeground(new Color(65, 65, 65));
 						super.paint(g);
-					}// end paint
+					}
 				});
-			} // end else if
-		} // end for
-		return empDetails;
-	}// end detailsPanel
+			}
+		}
+	}
+
 
 	// display current Employee details
 	public void displayRecords(Employee thisEmployee) {
@@ -338,10 +334,11 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	// display Employee summary dialog
 	private void displayEmployeeSummaryDialog() {
-		// display Employee summary dialog if these is someone to display
+		// display Employee summary dialog if there is someone to display
 		if (isSomeoneToDisplay())
-			new EmployeeSummaryDialog(getAllEmloyees());
+			new EmployeeSummaryDialog(getAllEmployees());
 	}// end displaySummaryDialog
+
 
 	// display search by ID dialog
 	private void displaySearchByIdDialog() {
@@ -576,7 +573,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	}// end deleteDecord
 
 	// create vector of vectors with all Employee details
-	private Vector<Object> getAllEmloyees() {
+	private Vector<Object> getAllEmployees() {
 		// vector of Employee objects
 		Vector<Object> allEmployee = new Vector<Object>();
 		Vector<Object> empDetails;// vector of each employee details
@@ -588,14 +585,14 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		// loop until all Employees are added to vector
 		do {
 			empDetails = new Vector<Object>();
-			empDetails.addElement(new Integer(currentEmployee.getEmployeeId()));
+			empDetails.addElement(Integer.valueOf(currentEmployee.getEmployeeId()));
 			empDetails.addElement(currentEmployee.getPps());
 			empDetails.addElement(currentEmployee.getSurname());
 			empDetails.addElement(currentEmployee.getFirstName());
-			empDetails.addElement(new Character(currentEmployee.getGender()));
+			empDetails.addElement(Character.valueOf(currentEmployee.getGender()));
 			empDetails.addElement(currentEmployee.getDepartment());
-			empDetails.addElement(new Double(currentEmployee.getSalary()));
-			empDetails.addElement(new Boolean(currentEmployee.getFullTime()));
+			empDetails.addElement(Double.valueOf(currentEmployee.getSalary()));
+			empDetails.addElement(Boolean.valueOf(currentEmployee.getFullTime()));
 
 			allEmployee.addElement(empDetails);
 			nextRecord();// look for next record
@@ -603,7 +600,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		currentByteStart = byteStart;
 
 		return allEmployee;
-	}// end getAllEmployees
+	}
 
 	// activate field for editing
 	private void editDetails() {
@@ -980,74 +977,55 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	// action listener for buttons, text field and menu items
 	public void actionPerformed(ActionEvent e) {
-
-		if (e.getSource() == closeApp) {
-			if (checkInput() && !checkForChanges())
+		if (checkInput() && !checkForChanges()) {
+			if (e.getSource() == closeApp) {
 				exitApp();
-		} else if (e.getSource() == open) {
-			if (checkInput() && !checkForChanges())
+			} else if (e.getSource() == open) {
 				openFile();
-		} else if (e.getSource() == save) {
-			if (checkInput() && !checkForChanges())
+			} else if (e.getSource() == save) {
 				saveFile();
-			change = false;
-		} else if (e.getSource() == saveAs) {
-			if (checkInput() && !checkForChanges())
+				change = false;
+			} else if (e.getSource() == saveAs) {
 				saveFileAs();
-			change = false;
-		} else if (e.getSource() == searchById) {
-			if (checkInput() && !checkForChanges())
+				change = false;
+			} else if (e.getSource() == searchById) {
 				displaySearchByIdDialog();
-		} else if (e.getSource() == searchBySurname) {
-			if (checkInput() && !checkForChanges())
+			} else if (e.getSource() == searchBySurname) {
 				displaySearchBySurnameDialog();
-		} else if (e.getSource() == searchId || e.getSource() == searchByIdField)
-			searchEmployeeById();
-		else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField)
-			searchEmployeeBySurname();
-		else if (e.getSource() == saveChange) {
-			if (checkInput() && !checkForChanges())
-				;
-		} else if (e.getSource() == cancelChange)
-			cancelChange();
-		else if (e.getSource() == firstItem || e.getSource() == first) {
-			if (checkInput() && !checkForChanges()) {
+			} else if (e.getSource() == searchId || e.getSource() == searchByIdField) {
+				searchEmployeeById();
+			} else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField) {
+				searchEmployeeBySurname();
+			} else if (e.getSource() == saveChange) {
+				// Do something with saveChange (seems to be missing from the original code)
+			} else if (e.getSource() == cancelChange) {
+				cancelChange();
+			} else if (e.getSource() == firstItem || e.getSource() == first) {
 				firstRecord();
 				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == prevItem || e.getSource() == previous) {
-			if (checkInput() && !checkForChanges()) {
+			} else if (e.getSource() == prevItem || e.getSource() == previous) {
 				previousRecord();
 				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == nextItem || e.getSource() == next) {
-			if (checkInput() && !checkForChanges()) {
+			} else if (e.getSource() == nextItem || e.getSource() == next) {
 				nextRecord();
 				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == lastItem || e.getSource() == last) {
-			if (checkInput() && !checkForChanges()) {
+			} else if (e.getSource() == lastItem || e.getSource() == last) {
 				lastRecord();
 				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == listAll || e.getSource() == displayAll) {
-			if (checkInput() && !checkForChanges())
-				if (isSomeoneToDisplay())
+			} else if (e.getSource() == listAll || e.getSource() == displayAll) {
+				if (isSomeoneToDisplay()) {
 					displayEmployeeSummaryDialog();
-		} else if (e.getSource() == create || e.getSource() == add) {
-			if (checkInput() && !checkForChanges())
+				}
+			} else if (e.getSource() == create || e.getSource() == add) {
 				new AddRecordDialog(EmployeeDetails.this);
-		} else if (e.getSource() == modify || e.getSource() == edit) {
-			if (checkInput() && !checkForChanges())
+			} else if (e.getSource() == modify || e.getSource() == edit) {
 				editDetails();
-		} else if (e.getSource() == delete || e.getSource() == deleteButton) {
-			if (checkInput() && !checkForChanges())
+			} else if (e.getSource() == delete || e.getSource() == deleteButton) {
 				deleteRecord();
-		} else if (e.getSource() == searchBySurname) {
-			if (checkInput() && !checkForChanges())
-				new SearchBySurnameDialog(EmployeeDetails.this);
+			}
 		}
-	}// end actionPerformed
+	}
+
 
 	// content pane for main dialog
 	private void createContentPane() {
@@ -1133,4 +1111,8 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	public void windowOpened(WindowEvent e) {
 	}
+
+	
+
+
 }// end class EmployeeDetails
