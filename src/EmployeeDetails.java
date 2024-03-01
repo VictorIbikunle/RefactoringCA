@@ -1010,7 +1010,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 				nextRecord();
 				displayRecords(currentEmployee);
 			} else if (e.getSource() == lastItem || e.getSource() == last) {
-				lastRecord();
+ 				lastRecord();
 				displayRecords(currentEmployee);
 			} else if (e.getSource() == listAll || e.getSource() == displayAll) {
 				if (isSomeoneToDisplay()) {

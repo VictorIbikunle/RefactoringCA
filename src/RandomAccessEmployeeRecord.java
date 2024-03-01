@@ -38,18 +38,14 @@ public class RandomAccessEmployeeRecord extends Employee
    } // end read
 
    // Ensure that string is correct length
-   private String readName( RandomAccessFile file ) throws IOException
-   {
-      char name[] = new char[ 20 ], temp;
+   private String readName(RandomAccessFile file) throws IOException {
+      char[] name = new char[20];
+      for (int count = 0; count < name.length; count++) {
+         name[count] = file.readChar();
+      }
+      return new String(name).replace('\0', ' ').trim(); // trim to remove leading/trailing spaces
+   }
 
-      for ( int count = 0; count < name.length; count++ )
-      {
-         temp = file.readChar();
-         name[ count ] = temp;
-      } // end for     
-      
-      return new String( name ).replace( '\0', ' ' );
-   } // end readName
 
    // Write a record to specified RandomAccessFile
    public void write( RandomAccessFile file ) throws IOException
@@ -65,17 +61,13 @@ public class RandomAccessEmployeeRecord extends Employee
    } // end write
 
    // Ensure that string is correct length
-   private void writeName( RandomAccessFile file, String name )
-      throws IOException
-   {
-      StringBuffer buffer = null;
+   private void writeName(RandomAccessFile file, String name) throws IOException {
+      StringBuffer buffer = new StringBuffer(20);
+      if (name != null) {
+         buffer.append(name);
+      }
+      buffer.setLength(20);
+      file.writeChars(buffer.toString());
+   }
 
-      if ( name != null ) 
-         buffer = new StringBuffer( name );
-      else 
-         buffer = new StringBuffer( 20 );
-
-      buffer.setLength( 20 );
-      file.writeChars( buffer.toString() );
-   } // end writeName
 } // end class RandomAccessEmployeeRecord

@@ -89,21 +89,37 @@ public class Employee{
 		this.firstName = firstName;
 	}
 
-	public void setGender(char gender) {
-		this.gender = gender;
-	}
+
 
 	public void setDepartment(String department) {
 		this.department = department;
 	}
 
-	public void setSalary(double salary) {
-		this.salary = salary;
-	}
+
 
 	public void setFullTime(boolean fullTime) {
 		this.fullTime = fullTime;
 	}
+
+
+	public void setSalary(double salary) {
+		if (salary >= 0) {
+			this.salary = salary;
+		} else {
+			// Handle invalid salary (throw an exception, log a message, etc.)
+			throw new IllegalArgumentException("Salary cannot be negative.");
+		}
+	}
+
+	public void setGender(char gender) {
+		if (gender == 'M' || gender == 'F') {
+			this.gender = gender;
+		} else {
+			// Handle invalid gender (throw an exception, log a message, etc.)
+			throw new IllegalArgumentException("Invalid gender. Must be 'M' or 'F'.");
+		}
+	}
+
 
 	// Display Employee details
 	public String toString() {
@@ -117,4 +133,15 @@ public class Employee{
 				+ "\nFirst Name: " + this.firstName + "\nGender: " + this.gender + "\nDepartment: " + this.department + "\nSalary: " + this.salary
 				+ "\nFull Time: " + bool;
 	}// end toString
+
+
+
+
+
+
+
+
+
+
+
 }// end class Employee
