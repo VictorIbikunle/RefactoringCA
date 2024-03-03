@@ -16,34 +16,54 @@ public class RandomFile {
 	private RandomAccessFile input;
 
 	// Create new file
-	public static void createFile(String fileName) {
-		try (RandomAccessFile file = new RandomAccessFile(fileName, "rw")) {
-			// Do nothing, just create the file
-		} catch (IOException ioException) {
+	public void createFile(String fileName) {
+		RandomAccessFile file = null;
+
+		try // open file for reading and writing
+		{
+			file = new RandomAccessFile(fileName, "rw");
+
+		} // end try
+		catch (IOException ioException) {
 			JOptionPane.showMessageDialog(null, "Error processing file!");
 			System.exit(1);
-		}
-	}
+		} // end catch
+
+		finally {
+			try {
+				if (file != null)
+					file.close(); // close file
+			} // end try
+			catch (IOException ioException) {
+				JOptionPane.showMessageDialog(null, "Error closing file!");
+				System.exit(1);
+			} // end catch
+		} // end finally
+	} // end createFile
 
 	// Open file for adding or changing records
 	public void openWriteFile(String fileName) {
-		try {
+		try // open file
+		{
 			output = new RandomAccessFile(fileName, "rw");
-		} catch (IOException ioException) {
+		} // end try
+		catch (IOException ioException) {
 			JOptionPane.showMessageDialog(null, "File does not exist!");
-		}
-	}
+		} // end catch
+	} // end method openFile
 
+	// Close file for adding or changing records
 	public void closeWriteFile() {
-		try {
+		try // close file and exit
+		{
 			if (output != null)
 				output.close();
-		} catch (IOException ioException) {
-			// Log the error or throw an exception instead of showing a dialog
-			ioException.printStackTrace();
-		}
-	}
-
+		} // end try
+		catch (IOException ioException) {
+			JOptionPane.showMessageDialog(null, "Error closing file!");
+			System.exit(1);
+		} // end catch
+	} // end closeFile
 
 	// Add records to file
 	public long addRecords(Employee employeeToAdd) {
