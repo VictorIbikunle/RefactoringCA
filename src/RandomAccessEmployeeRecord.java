@@ -62,7 +62,7 @@ public class RandomAccessEmployeeRecord extends Employee
 
    // Ensure that string is correct length
    private void writeName(RandomAccessFile file, String name) throws IOException {
-      StringBuffer buffer = new StringBuffer(20);
+      StringBuilder buffer = new StringBuilder(20);
       if (name != null) {
          buffer.append(name);
       }
